@@ -25,7 +25,7 @@ This section models the core agreement. I focused on creating a clean, hierarchi
 
 This prompt is designed to reliably convert a high-level business requirement into a valid `RevenueSharingPact` instance.
 
-- **Location:** [`/part2-prompt-nlu-to-blue/prompt.txt`](./part2-prompt-nlu-to-blue/prompt.md)
+- **Location:** [`/part2-prompt-nlu-to-blue/prompt.md`](./part2-prompt-nlu-to-blue/prompt.md)
 - **Technique:** The prompt uses a "zero-shot" approach with strong, explicit instructions and a clear definition of the target structure. It guides the LLM to parse the user's intent and map it directly to the predefined Blue type, ensuring structural correctness.
 
 ---
