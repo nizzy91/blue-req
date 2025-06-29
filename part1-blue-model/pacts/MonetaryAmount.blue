@@ -4,10 +4,10 @@ description: Represents a specific amount of money in a given currency.
 amount:
   description: The numerical value of the amount.
   type:
-    # Używamy prawdziwego BlueId dla typu Double z dokumentacji Blue
-    blueId: 68ryJtnmui4j5rCZWUnkZ3DChtmEb7Z9F8atn1mBSM3L # Double
+    # Double
+    blueId: 68ryJtnmui4j5rCZWUnkZ3DChtmEb7Z9F8atn1mBSM3L
 currency:
   description: The ISO 4217 currency code.
   type:
-    # Używamy prawdziwego BlueId dla typu Text z dokumentacji Blue
-    blueId: F92yo19rCcbBoBSpUA5LRxpfDejJDAaP1PRxxbWAraVP # Text
+    # Text
+    blueId: F92yo19rCcbBoBSpUA5LRxpfDejJDAaP1PRxxbWAraVP

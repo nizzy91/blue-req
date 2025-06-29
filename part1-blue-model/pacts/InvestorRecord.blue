@@ -5,8 +5,9 @@ investor:
   description: The MyOS account of the investor.
   type:
     # Używamy prawdziwego BlueId dla MyOS Agent
-    blueId: 9dvBsvQ5tGUZmR3bQkRy8nfwzAkSuM4NA8e4Fmy9eJtN # MyOS Agent
+    blueId: 9dvBsvQ5tGUZmR3bQkRy8nfwzAkSuM4NA8e4Fmy9eJtN
 investment:
   description: The amount of capital invested by this participant.
   type:
-    blueId: <blueId_for_MonetaryAmount> # Nasz własny typ zdefiniowany powyżej
+    # Nasz własny typ zdefiniowany
+    blueId: <blueId_for_MonetaryAmount>

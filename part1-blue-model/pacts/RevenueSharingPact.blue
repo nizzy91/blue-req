@@ -14,7 +14,7 @@ investors:
     # List
     blueId: G8wmfjEqugPEEXByMYWJXiEdbLToPRWNQEekNxrxfQWB
   itemType:
-    blueId: <blueId_for_InvestorRecord> # Nasz własny typ
+    blueId: <blueId_for_InvestorRecord>
 totalCapital:
   description: The total sum of all investments.
   type:
