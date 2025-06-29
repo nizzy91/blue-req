@@ -1,0 +1,130 @@
+# Główny dokument kontraktu podziału zysków.
+name: RevenueSharingPact
+description: A dynamic financial agreement for sharing operational profits with investors.
+
+# --- 1. Pola Danych (Struktura) ---
+company:
+  description: The entity raising capital and sharing profits.
+  type:
+    # MyOS Agent
+    blueId: 9dvBsvQ5tGUZmR3bQkRy8nfwzAkSuM4NA8e4Fmy9eJtN
+investors:
+  description: A list of all participating investors and their contributions.
+  type:
+    # List
+    blueId: G8wmfjEqugPEEXByMYWJXiEdbLToPRWNQEekNxrxfQWB
+  itemType:
+    blueId: <blueId_for_InvestorRecord> # Nasz własny typ
+totalCapital:
+  description: The total sum of all investments.
+  type:
+    blueId: <blueId_for_MonetaryAmount>
+payoutPercentage:
+  description: The percentage of reported profit to be distributed to investors.
+  type:
+    # Double
+    blueId: 68ryJtnmui4j5rCZWUnkZ3DChtmEb7Z9F8atn1mBSM3L
+status:
+  description: The current status of the pact (e.g., FUNDING, ACTIVE, CLOSED).
+  type:
+    # Text
+    blueId: F92yo19rCcbBoBSpUA5LRxpfDejJDAaP1PRxxbWAraVP
+
+# --- 2. Kontrakty (Logika i Interakcje) ---
+contracts:
+  # --- Kanały Komunikacyjne ---
+  companyChannel:
+    description: The communication channel for the company.
+    type:
+      # MyOS Timeline Channel
+      blueId: 2on6fJFSQscUy1v3Dot1LyMiL2j1qbYQBxUhQaGmCXPS
+    account: ${document('/company/agentId')} # Dynamiczne powiązanie z ID firmy
+
+  # --- Publiczne Operacje (API Kontraktu) ---
+  invest:
+    description: Allows a new or existing investor to make an investment.
+    type:
+      # Operation
+      blueId: APkQmnhBWzQzpZAPHgyHeVm9QK8geARgVFg6418oFH1C
+    request:
+      type:
+        blueId: <blueId_for_MonetaryAmount>
+
+  reportProfit:
+    description: Allows the company to report operational profit for a period.
+    type:
+      # Operation
+      blueId: APkQmnhBWzQzpZAPHgyHeVm9QK8geARgVFg6418oFH1C
+    request:
+      type:
+        blueId: <blueId_for_MonetaryAmount>
+
+  # --- Wewnętrzne Workflows (Logika Biznesowa) ---
+  handleInvestment:
+    description: Processes a new investment, updating the investor list and total capital.
+    type:
+      # Sequential Workflow
+      blueId: AQYxXnq4Yr9kRhfQnvneuyHRyMzDHFiewF27EeqVy6du # Sequential Workflow
+    # Ten workflow jest powiązany z operacją 'invest'
+    # W pełnej implementacji byłby tu link do operacji, np. przez SequentialWorkflowOperation
+    channel: <placeholder_for_investor_channel> # Kanał, na którym inwestorzy wysyłają żądania
+    steps:
+      - name: AddInvestorRecord
+        type:
+          # Update Document
+          blueId: DvJAyytREPi6gWecvZ9UE4Xau18WcY3EQ58XdTHaVmmS
+        changeset:
+          # Dodaj nowy rekord inwestora do listy. event.investor pochodziłoby z kontekstu wywołania.
+          - op: add
+            path: /investors/-
+            value:
+              investor: ${event.investor}
+              investment: ${event.request}
+          # Zaktualizuj sumę kapitału.
+          - op: replace
+            path: /totalCapital/amount
+            value: ${document('/totalCapital/amount') + event.request.amount}
+
+  distributeProfit:
+    description: Calculates and triggers profit distribution after a profit report.
+    type:
+      # Sequential Workflow
+      blueId: AQYxXnq4Yr9kRhfQnvneuyHRyMzDHFiewF27EeqVy6du
+    channel: companyChannel # Tylko firma może wywołać ten workflow
+    # Ten workflow reagowałby na operację 'reportProfit'
+    steps:
+      - name: CalculatePayouts
+        type:
+          # JavaScript Code
+          blueId: 9fJLGyUgqcTXTSsPZm1J3Wi67AwgjFtEnmWc3TvagCWi
+        code: |
+          const profit = event.request.amount;
+          const payoutPercentage = document('/payoutPercentage');
+          const totalCapital = document('/totalCapital/amount');
+          const investors = document('/investors');
+
+          const totalPayout = profit * (payoutPercentage / 100);
+          const payoutEvents = [];
+
+          for (const record of investors) {
+            const investorShare = record.investment.amount / totalCapital;
+            const investorPayout = totalPayout * investorShare;
+
+            payoutEvents.push({
+              type: "PayoutDue",
+              investor: record.investor,
+              amount: {
+                amount: investorPayout,
+                currency: document('/totalCapital/currency')
+              }
+            });
+          }
+          return { events: payoutEvents };
+
+      - name: TriggerPayoutEvents
+        type:
+          # Trigger Event
+          blueId: EANpif23QFiiLQvJCDAWSTM9ddrWd6dsVNP3VvwEmFe7
+        # Ta składnia jest koncepcyjna - w pętli wywołuje zdarzenia
+        # zwrócone przez poprzedni krok.
+        events: ${steps.CalculatePayouts.events}
