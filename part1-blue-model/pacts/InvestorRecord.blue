@@ -1,0 +1,12 @@
+# Reprezentuje pojedynczy wpis na liście inwestorów.
+name: InvestorRecord
+description: Holds the details of a single investor's participation in a pact.
+investor:
+  description: The MyOS account of the investor.
+  type:
+    # Używamy prawdziwego BlueId dla MyOS Agent
+    blueId: 9dvBsvQ5tGUZmR3bQkRy8nfwzAkSuM4NA8e4Fmy9eJtN # MyOS Agent
+investment:
+  description: The amount of capital invested by this participant.
+  type:
+    blueId: <blueId_for_MonetaryAmount> # Nasz własny typ zdefiniowany powyżej
